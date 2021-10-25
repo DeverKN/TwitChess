@@ -34,7 +34,11 @@ public class RandomBot implements ChessBot {
                 }
             }
         }*/
-        return legalMoves.get(randomNum.nextInt(legalMoves.size() - 1));
+        if (legalMoves.size() > 0) {
+            return legalMoves.get(randomNum.nextInt(legalMoves.size() - 1));
+        } else {
+            return null;
+        }
     }
 
     public String getBotName() {

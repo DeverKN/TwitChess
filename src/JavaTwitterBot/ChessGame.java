@@ -175,8 +175,10 @@ public class ChessGame {
             }
             if (!botCheckMate) {
                 ChessLocation[] botMove = this.bot.getMove(this);
-                this.doMove(botMove[0], botMove[1], false);
-                result.setResultMessage(result.getResultMessage() + "\n" + "Bot Move: " + botMove[0].toString() + " to " + botMove[1].toString());
+                if (botMove != null) {
+                    this.doMove(botMove[0], botMove[1], false);
+                    result.setResultMessage(result.getResultMessage() + "\n" + "Bot Move: " + botMove[0].toString() + " to " + botMove[1].toString());
+                }
                 if (isPlayerInCheck(true)) {
                     //Player is in check
                     result.setResultMessage(result.getResultMessage() + " You're in Check!");
@@ -218,9 +220,25 @@ public class ChessGame {
             this.board.setPieceAt(startPosition, null);
             //Replace the other piece
             this.board.setPieceAt(endPosition, pieceToMove);
-            if (targetPiece != null) this.board.pieceCaptured(targetPiece);
+            boolean kingCaptured = false;
+            if (targetPiece != null) {
+                this.board.pieceCaptured(targetPiece);
+                if (targetPiece instanceof King) {
+                    kingCaptured = true;
+                }
+            }
+            MoveResult result = new MoveResult(true, null, "Move Completed: " + startPosition.toString() + " to " + endPosition.toString(), MoveResult.RESULT_MOVE);
+            if (kingCaptured) {
+                if (targetPiece.isBlack()) {
+                    result.setResult(MoveResult.RESULT_WIN);
+                    result.setResultMessage(result.getResultMessage() + "You Won!");
+                } else {
+                    result.setResult(MoveResult.RESULT_LOSS);
+                    result.setResultMessage(result.getResultMessage() + "You Lost!");
+                }
+            }
             this.onPostMove();
-            return new MoveResult(true, null, "Move Completed: " + startPosition.toString() + " to " + endPosition.toString(), MoveResult.RESULT_MOVE);
+            return result;
         }
         //System.out.println("couldn't do move");
         return new MoveResult(false, null, "Error cannot move piece at " + startPosition.toString() + " to " + endPosition.toString(), MoveResult.RESULT_ERROR);
